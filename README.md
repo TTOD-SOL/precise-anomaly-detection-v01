@@ -1,2 +1,34 @@
-# precise-anomaly-detection-v01
-Precision-first anomaly detection system for multivariate sensor data using robust statistics and rule stacking to minimize false positives.
+# precise-anomaly-detection
+
+
+
+
+
+\# Precise Anomaly Detection (Precision-First Alerts)
+
+
+
+An anomaly detection project designed for low false positives. It simulates multivariate sensor data (vibration, temperature, current), injects realistic fault patterns, then detects anomalies using robust statistics + rule stacking with a precision gate.
+
+
+
+\## Why "precision-first"?
+
+In operations, false alerts waste time. This project prioritizes precision by requiring multiple conditions before raising an alert.
+
+
+
+\## Quickstart
+
+```bash
+
+pip install -r requirements.txt
+
+python src/generate\_sensor\_data.py
+
+python src/detect\_anomalies.py
+
+python src/evaluate.py
+
+
+

@@ -1,0 +1,58 @@
+
+## src/generate_sensor_data.py
+```python
+from pathlib import Path
+import numpy as np
+import pandas as pd
+
+def main():
+    rng = np.random.default_rng(7)
+    out_dir = Path("data/raw")
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    n = 12000
+    t0 = pd.Timestamp("2025-01-01")
+    ts = t0 + pd.to_timedelta(np.arange(n), unit="m")
+
+    # Baseline signals
+    vib = rng.normal(1.0, 0.08, size=n)          # vibration (g)
+    temp = rng.normal(55.0, 1.2, size=n)         # temperature (C)
+    amps = rng.normal(12.0, 0.6, size=n)         # current (A)
+
+    # Inject realistic anomalies (labeled ground truth)
+    y = np.zeros(n, dtype=int)
+
+    # 1) Bearing wear: slow vibration drift + periodic spikes
+    wear_start = 3500
+    wear_end = 5200
+    vib[wear_start:wear_end] += np.linspace(0, 0.6, wear_end-wear_start)
+    spike_idx = np.arange(wear_start, wear_end, 90)
+    vib[spike_idx] += rng.normal(0.9, 0.15, size=len(spike_idx))
+    y[wear_start:wear_end] = 1
+
+    # 2) Cooling issue: temperature shift upward
+    cool_start = 7000
+    cool_end = 7800
+    temp[cool_start:cool_end] += 6.0
+    y[cool_start:cool_end] = 1
+
+    # 3) Jam event: sudden current + vibration jump for short window
+    jam_start = 9800
+    jam_end = 9900
+    amps[jam_start:jam_end] += 6.0
+    vib[jam_start:jam_end] += 0.5
+    y[jam_start:jam_end] = 1
+
+    df = pd.DataFrame({
+        "timestamp": ts,
+        "vibration_g": vib,
+        "temp_c": temp,
+        "current_a": amps,
+        "is_anomaly": y
+    })
+
+    df.to_csv(out_dir / "sensor_stream.csv", index=False)
+    print(f"✅ Wrote {out_dir / 'sensor_stream.csv'} ({len(df)} rows)")
+
+if __name__ == "__main__":
+    main()
