@@ -21,8 +21,11 @@ In operations, false alerts waste time. This project prioritizes precision by re
 \## Quickstart
 
 pip install -r requirements.txt
+
 python src/generate_sensor_data.py
+
 python src/detect_anomalies.py
+
 python src/evaluate.py
 
 
